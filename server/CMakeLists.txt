@@ -17,6 +17,7 @@ endif()
 
 find_package(ixwebsocket CONFIG REQUIRED)
 find_package(nlohmann_json CONFIG REQUIRED)
+find_package(Threads REQUIRED)
 
 add_executable(saide_server
     src/main.cpp
