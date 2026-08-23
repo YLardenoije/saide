@@ -139,6 +139,41 @@ The server remains authoritative even if the client is modified or malicious.
 * Deferred `TODO`/`FIXME` items should reference tracked work where appropriate.
 * Do not silently change public interfaces or protocol behavior.
 
+== Branch and commit workflow
+
+The repository follows a PR-first workflow.
+
+* Do not commit directly to `main`.
+* Create a branch for each task using:
++
+[source,text]
+----
+<type>/task-description
+----
+* Branch names should be lowercase and hyphenated.
+* Typical `type` values include:
++
+[source,text]
+----
+feat
+fix
+docs
+refactor
+test
+chore
+----
+* Commit messages must follow Conventional Commits.
+* Examples:
++
+[source,text]
+----
+feat: add websocket ping handling
+fix: reject malformed move requests
+docs: clarify local validation steps
+----
+* Open a PR for every branch and keep it up to date with CI.
+* Merge only after CI is green and review feedback is addressed.
+
 == AI-specific hygiene
 
 Agents must:
