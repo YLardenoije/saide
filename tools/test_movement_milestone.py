@@ -25,7 +25,7 @@ MOVE_TIMEOUT_SECS = 2.0
 
 
 @pytest.fixture()
-def server() -> None:
+def server() -> subprocess.Popen[str]:
     if not SERVER_EXE.exists():
         pytest.skip(f"server executable not built: {SERVER_EXE}")
 
@@ -45,7 +45,7 @@ def server() -> None:
         else:
             process.terminate()
             raise RuntimeError("server did not report listening in time")
-        yield
+        yield process
     finally:
         process.terminate()
         process.wait(timeout=5)
@@ -68,28 +68,69 @@ async def _run_movement_test() -> None:
         id_b = await _hello(client_b)
         assert id_a != id_b
 
-        target_x, target_y = 123.0, 45.0
+        target_x, target_y = 3, 2
         await client_a.send(json.dumps({"type": "MOVE_REQUEST", "x": target_x, "y": target_y}))
 
-        async def wait_for_move(websocket: websockets.WebSocketClientProtocol) -> None:
+        async def collect_path(websocket: websockets.WebSocketClientProtocol) -> list[tuple[int, int]]:
+            path: list[tuple[int, int]] = []
             deadline = time.monotonic() + MOVE_TIMEOUT_SECS
-            while time.monotonic() < deadline:
-                message = json.loads(await websocket.recv())
+            while len(path) < 5:
+                remaining = deadline - time.monotonic()
+                if remaining <= 0:
+                    raise AssertionError(f"did not observe complete path for {id_a}: {path}")
+                message = json.loads(await asyncio.wait_for(websocket.recv(), remaining))
                 if (
                     message.get("type") == "PLAYER_MOVED"
                     and message.get("id") == id_a
-                    and message.get("x") == target_x
-                    and message.get("y") == target_y
                 ):
-                    return
-            raise AssertionError(f"did not observe PLAYER_MOVED for {id_a} in time")
+                    path.append((message["x"], message["y"]))
+            return path
 
-        # Client B (a different connection) must see client A's movement.
-        await wait_for_move(client_b)
+        # One orthogonal tile is traversed per server tick until the destination.
+        assert await collect_path(client_b) == [(1, 0), (2, 0), (3, 0), (3, 1), (3, 2)]
+
+        # Out-of-bounds destinations are ignored and cannot move the player.
+        await client_a.send(json.dumps({"type": "MOVE_REQUEST", "x": 100, "y": 2}))
+        with pytest.raises(asyncio.TimeoutError):
+            while True:
+                message = json.loads(await asyncio.wait_for(client_b.recv(), 0.35))
+                if message.get("type") == "PLAYER_MOVED" and message.get("id") == id_a:
+                    raise AssertionError("out-of-bounds destination moved the player")
 
 
-def test_second_client_sees_first_client_move(server: None) -> None:
+async def _abort_connected_client() -> None:
+    websocket = await websockets.connect(SERVER_URL)
+    await _hello(websocket)
+    websocket.transport.abort()
+    await asyncio.sleep(0.25)
+
+
+async def _observe_client_disconnect() -> None:
+    async with websockets.connect(SERVER_URL) as observer:
+        await _hello(observer)
+        disconnected = await websockets.connect(SERVER_URL)
+        disconnected_id = await _hello(disconnected)
+        await disconnected.close()
+
+        deadline = time.monotonic() + MOVE_TIMEOUT_SECS
+        while True:
+            remaining = deadline - time.monotonic()
+            if remaining <= 0:
+                raise AssertionError(f"did not observe PLAYER_DESPAWN for {disconnected_id}")
+            message = json.loads(await asyncio.wait_for(observer.recv(), remaining))
+            if (
+                message.get("type") == "PLAYER_DESPAWN"
+                and message.get("id") == disconnected_id
+            ):
+                return
+
+
+def test_second_client_sees_first_client_move(server: subprocess.Popen[str]) -> None:
     asyncio.run(_run_movement_test())
+    asyncio.run(_observe_client_disconnect())
+    asyncio.run(_abort_connected_client())
+    time.sleep(0.25)
+    assert server.poll() is None, "server exited after a client disconnected"
 
 
 if __name__ == "__main__":
