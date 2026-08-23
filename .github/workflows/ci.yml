@@ -43,8 +43,8 @@ jobs:
       - name: Install test dependencies
         run: python -m pip install -r tools/requirements.txt
 
-      - name: Run movement milestone integration test
-        run: python -m pytest tools/test_movement_milestone.py -v
+      - name: Run integration tests
+        run: python -m pytest tools -v
 
   python-tools:
     name: Python tooling lint + tests

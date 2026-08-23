@@ -24,6 +24,23 @@ add_executable(saide_server
     src/world.cpp
 )
 
+add_executable(saide_launch_dual_clients
+    src/launch_dual_clients.cpp
+)
+
+set(SAIDE_GODOT_EXE "godot" CACHE FILEPATH "Godot executable used for local multiplayer testing")
+target_compile_definitions(saide_launch_dual_clients PRIVATE
+    SAIDE_GODOT_EXE="${SAIDE_GODOT_EXE}"
+    SAIDE_GODOT_PROJECT_PATH="${CMAKE_SOURCE_DIR}/../client"
+    SAIDE_SERVER_EXE="$<TARGET_FILE:saide_server>"
+)
+target_link_libraries(saide_launch_dual_clients PRIVATE Threads::Threads)
+add_dependencies(saide_launch_dual_clients saide_server)
+
+if(WIN32)
+    target_link_libraries(saide_launch_dual_clients PRIVATE ws2_32)
+endif()
+
 target_link_libraries(saide_server PRIVATE ixwebsocket::ixwebsocket nlohmann_json::nlohmann_json)
 
 if(WIN32)
