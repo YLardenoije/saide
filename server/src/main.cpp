@@ -46,7 +46,10 @@ int main() {
 
                     const std::string payload = json{{"type", "PLAYER_DESPAWN"}, {"id", id}}.dump();
                     for (const auto& client : server.getClients()) {
-                        if (client->getReadyState() == ix::ReadyState::Open) {
+                        // The closing socket can remain in the server's client set until
+                        // this callback returns. Never send the despawn back through it.
+                        if (client.get() != &webSocket &&
+                            client->getReadyState() == ix::ReadyState::Open) {
                             client->send(payload);
                         }
                     }
@@ -98,7 +101,8 @@ int main() {
                                      {"id", id}}
                                    .dump());
 
-                const std::string spawnPayload = playerSpawnMessage(saide::Player{id, 0.0, 0.0}).dump();
+                const std::string spawnPayload =
+                    playerSpawnMessage(saide::Player{id, 0, 0, 0, 0}).dump();
                 for (const auto& client : server.getClients()) {
                     if (client->getReadyState() == ix::ReadyState::Open) {
                         client->send(spawnPayload);
@@ -109,8 +113,12 @@ int main() {
                     return; // must complete HELLO handshake first
                 }
                 try {
-                    world.requestMove(
-                        id, command.at("x").get<double>(), command.at("y").get<double>());
+                    const auto& x = command.at("x");
+                    const auto& y = command.at("y");
+                    if (!x.is_number_integer() || !y.is_number_integer()) {
+                        return;
+                    }
+                    world.requestMove(id, x.get<int>(), y.get<int>());
                 } catch (const json::exception& e) {
                     std::cerr << "Bad MOVE_REQUEST from " << id << ": " << e.what() << std::endl;
                 }
@@ -153,8 +161,8 @@ int main() {
     while (true) {
         const auto tickStart = std::chrono::steady_clock::now();
 
-        // send_updates(): broadcast each player's current position every tick.
-        for (const auto& player : world.snapshot()) {
+        // The server advances each path by at most one tile per tick.
+        for (const auto& player : world.advancePlayers()) {
             const std::string payload = playerMovedMessage(player).dump();
             for (const auto& client : server.getClients()) {
                 if (client->getReadyState() == ix::ReadyState::Open) {

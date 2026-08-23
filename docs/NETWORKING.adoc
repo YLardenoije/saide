@@ -51,6 +51,23 @@ CHAT_SEND
 CHAT_BROADCAST
 ----
 
+=== Tile movement milestone
+
+The initial world is a `100` by `100` tile grid with zero-based coordinates.
+A `MOVE_REQUEST` contains an integer destination tile:
+
+[source,json]
+----
+{"type":"MOVE_REQUEST","x":12,"y":34}
+----
+
+The server rejects destinations outside `0..99` on either axis. Accepted
+destinations do not immediately change player position. On each five-hertz
+server tick, the server advances a moving player by one orthogonal tile and
+broadcasts the resulting `PLAYER_MOVED`. The baseline deterministic path
+resolves the X axis before the Y axis; obstacle-aware pathfinding can replace
+that policy when world collision is introduced.
+
 Do not add messages before they are required by a milestone.
 
 == Protocol versioning
@@ -99,9 +116,10 @@ Later tests should cover multiple concurrent clients and gameplay flows.
 
 The first such test, `tools/test_movement_milestone.py`, starts the built
 server, connects two lightweight Python WebSocket clients, and asserts that
-one client's `MOVE_REQUEST` results in the other client observing a
-`PLAYER_MOVED` broadcast for it. It does not use `PING`/`PONG` yet, since
-that message pair isn't required by this milestone.
+one client's `MOVE_REQUEST` produces the expected one-tile-per-tick path for
+the other client. It also verifies that an out-of-bounds destination does not
+move the player. It does not use `PING`/`PONG` yet, since that message pair
+isn't required by this milestone.
 
 The chat milestone test, `tools/test_chat_milestone.py`, starts the built
 server, connects two clients, sends `CHAT_SEND` from one, and asserts the
