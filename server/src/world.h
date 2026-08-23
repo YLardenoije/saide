@@ -5,7 +5,7 @@
 #include <unordered_map>
 #include <vector>
 
-namespace rs {
+namespace saide {
 
 struct Player {
     std::string id;
@@ -32,4 +32,4 @@ private:
     std::unordered_map<std::string, Player> players_;
 };
 
-} // namespace rs
+} // namespace saide

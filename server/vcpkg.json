@@ -1,5 +1,5 @@
 {
-  "name": "runescape-server",
+  "name": "saide-server",
   "version": "0.1.0",
   "dependencies": [
     "ixwebsocket",

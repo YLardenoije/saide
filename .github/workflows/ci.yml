@@ -1,0 +1,78 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+env:
+  GODOT_VERSION: 4.7.2-stable
+
+jobs:
+  server:
+    name: Server build + integration test
+    runs-on: ubuntu-latest
+    env:
+      VCPKG_ROOT: ${{ github.workspace }}/vcpkg
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install build tools
+        run: sudo apt-get update && sudo apt-get install -y ninja-build
+
+      - name: Bootstrap vcpkg
+        run: |
+          git clone https://github.com/microsoft/vcpkg.git "$VCPKG_ROOT"
+          "$VCPKG_ROOT/bootstrap-vcpkg.sh" -disableMetrics
+
+      - name: Configure
+        working-directory: server
+        run: cmake --preset default
+
+      - name: Build
+        working-directory: server
+        run: cmake --build build
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install test dependencies
+        run: python -m pip install -r tools/requirements.txt
+
+      - name: Run movement milestone integration test
+        run: python -m pytest tools/test_movement_milestone.py -v
+
+  python-tools:
+    name: Python tooling lint + tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: python -m pip install -r tools/requirements.txt ruff
+
+      - name: Lint
+        run: ruff check tools/
+
+  godot-client:
+    name: Godot headless project validation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download Godot
+        run: |
+          curl -fL -o godot.zip "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}/Godot_v${GODOT_VERSION}_linux.x86_64.zip"
+          unzip godot.zip
+          chmod +x "Godot_v${GODOT_VERSION}_linux.x86_64"
+          mv "Godot_v${GODOT_VERSION}_linux.x86_64" godot
+
+      - name: Validate client project headlessly
+        run: ./godot --headless --path client --quit

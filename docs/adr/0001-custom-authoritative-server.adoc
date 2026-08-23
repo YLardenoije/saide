@@ -6,7 +6,7 @@ Accepted
 
 == Context
 
-The project is a multiplayer RuneScape-like learning project. Gameplay includes persistent world state, skills, combat, inventory, NPCs, and shared resources.
+The project (SAIDE) is a multiplayer, tick-based fantasy MMORPG learning project. Gameplay includes persistent world state, skills, combat, inventory, NPCs, and shared resources.
 
 == Decision
 

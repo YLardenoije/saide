@@ -16,7 +16,8 @@ from pathlib import Path
 import pytest
 import websockets
 
-SERVER_EXE = Path(__file__).resolve().parents[1] / "server" / "build" / "runescape_server.exe"
+_EXE_NAME = "saide_server.exe" if sys.platform == "win32" else "saide_server"
+SERVER_EXE = Path(__file__).resolve().parents[1] / "server" / "build" / _EXE_NAME
 SERVER_URL = "ws://127.0.0.1:43594"
 PROTOCOL_VERSION = 1
 STARTUP_TIMEOUT_SECS = 5.0

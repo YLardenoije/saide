@@ -1,6 +1,6 @@
 #include "world.h"
 
-namespace rs {
+namespace saide {
 
 void World::addPlayer(const std::string& id) {
     std::lock_guard<std::mutex> lock(mutex_);
@@ -36,4 +36,4 @@ std::vector<Player> World::snapshot() const {
     return result;
 }
 
-} // namespace rs
+} // namespace saide

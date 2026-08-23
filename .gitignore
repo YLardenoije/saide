@@ -247,3 +247,7 @@ pyrightconfig.json
 ### CMake / vcpkg ###
 vcpkg_installed/
 CMakeUserPresets.json
+
+# Convenience symlink to the built server, recreated by CMake each build
+/saide_server
+/saide_server.exe

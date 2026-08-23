@@ -16,11 +16,11 @@ constexpr int kPort = 43594;
 constexpr int kTicksPerSecond = 5;
 constexpr int kProtocolVersion = 1;
 
-json playerSpawnMessage(const rs::Player& player) {
+json playerSpawnMessage(const saide::Player& player) {
     return json{{"type", "PLAYER_SPAWN"}, {"id", player.id}, {"x", player.x}, {"y", player.y}};
 }
 
-json playerMovedMessage(const rs::Player& player) {
+json playerMovedMessage(const saide::Player& player) {
     return json{{"type", "PLAYER_MOVED"}, {"id", player.id}, {"x", player.x}, {"y", player.y}};
 }
 
@@ -29,7 +29,7 @@ json playerMovedMessage(const rs::Player& player) {
 int main() {
     ix::initNetSystem();
 
-    rs::World world;
+    saide::World world;
     ix::WebSocketServer server(kPort, "0.0.0.0");
 
     server.setOnClientMessageCallback(
@@ -97,7 +97,7 @@ int main() {
                                      {"id", id}}
                                    .dump());
 
-                const std::string spawnPayload = playerSpawnMessage(rs::Player{id, 0.0, 0.0}).dump();
+                const std::string spawnPayload = playerSpawnMessage(saide::Player{id, 0.0, 0.0}).dump();
                 for (const auto& client : server.getClients()) {
                     if (client->getReadyState() == ix::ReadyState::Open) {
                         client->send(spawnPayload);
@@ -124,7 +124,7 @@ int main() {
     }
 
     server.start();
-    std::cout << "runescape_server listening on port " << kPort << " (" << kTicksPerSecond
+    std::cout << "saide_server listening on port " << kPort << " (" << kTicksPerSecond
                << " ticks/sec)" << std::endl;
 
     const auto tickDuration = std::chrono::milliseconds(1000 / kTicksPerSecond);

@@ -21,7 +21,7 @@ Public visibility must not be interpreted as permission for unrestricted reuse.
 
 == Third-party intellectual property
 
-This project may be inspired by RuneScape-like mechanics, but implementation and content must remain original.
+This project may be inspired by classic tick-based fantasy MMORPG mechanics, but implementation and content must remain original.
 
 Do not commit copied or extracted third-party game content, including:
 
