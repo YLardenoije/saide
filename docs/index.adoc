@@ -1,0 +1,19 @@
+= Project Documentation
+:toc:
+
+This directory is the canonical source of project rules, architecture, designs, and engineering practices.
+
+== Core documents
+
+* xref:REPOSITORY_POLICY.adoc[Repository Policy]
+* xref:ARCHITECTURE.adoc[Architecture]
+* xref:DEVELOPMENT.adoc[Development and Engineering Hygiene]
+* xref:NETWORKING.adoc[Networking]
+
+== Design documentation
+
+Technical diagrams must be authored in PlantUML and stored under `design/`.
+
+== Architecture decisions
+
+Significant architectural decisions are recorded under `adr/`.

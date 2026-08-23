@@ -1,0 +1,55 @@
+= Repository Policy
+:toc:
+
+== Purpose
+
+This repository is a public learning and portfolio project.
+
+It is intentionally visible so the engineering process, architecture, and development history can be reviewed and learned from.
+
+== Copyright and reuse
+
+Copyright (c) 2026. All rights reserved.
+
+This repository is public for educational and portfolio purposes.
+
+No license is granted to use, copy, modify, distribute, sublicense, or incorporate the source code into other projects, except where GitHub's Terms of Service necessarily permit platform functionality.
+
+Do not add an open-source `LICENSE` file unless explicitly requested by the repository owner.
+
+Public visibility must not be interpreted as permission for unrestricted reuse.
+
+== Third-party intellectual property
+
+This project may be inspired by RuneScape-like mechanics, but implementation and content must remain original.
+
+Do not commit copied or extracted third-party game content, including:
+
+* source code
+* maps
+* models
+* textures
+* music
+* sound effects
+* dialogue
+* quest text
+* logos
+* proprietary data files
+
+Every new third-party dependency or asset must have its license identified before merge.
+
+Dependencies must have terms compatible with this repository's intended use.
+
+== Secrets
+
+Never commit:
+
+* credentials
+* API tokens
+* private keys
+* production passwords
+* secret connection strings
+
+Use environment variables, local ignored configuration, or GitHub Secrets where appropriate.
+
+Example configuration files must contain placeholders only.

@@ -1,0 +1,30 @@
+= ADR 0001: Custom Authoritative Game Server
+
+== Status
+
+Accepted
+
+== Context
+
+The project is a multiplayer RuneScape-like learning project. Gameplay includes persistent world state, skills, combat, inventory, NPCs, and shared resources.
+
+== Decision
+
+Use a custom C++20 authoritative game server.
+
+The Godot client sends player intentions and renders server-approved state.
+
+== Consequences
+
+Positive:
+
+* Clear authority boundary.
+* Good performance headroom.
+* Server architecture is directly learnable and testable.
+* Client manipulation cannot directly grant authoritative state.
+
+Costs:
+
+* More networking and server code must be maintained.
+* Client/server protocol compatibility must be managed.
+* Integration testing is required.

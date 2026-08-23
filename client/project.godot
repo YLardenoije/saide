@@ -1,0 +1,11 @@
+config_version=5
+
+[application]
+
+config/name="notRunescape Client"
+run/main_scene="res://scenes/Main.tscn"
+config/features=PackedStringArray("4.3")
+
+[rendering]
+
+renderer/rendering_method="gl_compatibility"

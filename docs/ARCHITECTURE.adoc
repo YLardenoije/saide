@@ -1,0 +1,110 @@
+= Architecture
+:toc:
+
+== System overview
+
+The project uses a server-authoritative multiplayer architecture.
+
+image::design/system-context.svg[System context]
+
+The high-level structure is:
+
+[source,text]
+----
+Godot Client
+     |
+     | network protocol
+     v
+C++20 Game Server
+     |
+     v
+Persistence Layer
+     |
+     v
+Database
+----
+
+Python is used primarily for tooling, validation, automated test clients, bots, and developer automation.
+
+== Server authority
+
+The server owns authoritative game state.
+
+The client sends intentions such as:
+
+* move to a tile
+* interact with an object
+* attack an NPC
+* use an item
+
+The server determines the result.
+
+The client must never authoritatively decide:
+
+* XP gains
+* levels
+* inventory contents
+* currency
+* damage
+* drops
+* quest completion
+* NPC state
+* resource state
+* player position
+
+== Responsibility boundaries
+
+=== Client
+
+The Godot client owns:
+
+* rendering
+* UI
+* input
+* animation
+* presentation
+* interpolation
+
+=== Server
+
+The C++ server owns:
+
+* authoritative simulation
+* player state
+* NPC state
+* movement validation
+* combat
+* skills
+* inventory
+* world state
+* persistence integration
+
+=== Shared
+
+The `shared/` area owns protocol definitions and shared identifiers where appropriate.
+
+=== Content
+
+Game content should be data-driven where practical.
+
+Examples:
+
+* items
+* NPCs
+* resource definitions
+* shops
+* drops
+* dialogue
+* quests
+* world configuration
+
+== Architectural change policy
+
+Significant architectural changes require:
+
+. an updated AsciiDoc design
+. relevant PlantUML updates
+. an ADR when a foundational decision changes
+. tests appropriate to the change
+
+Implementation and documentation must remain synchronized.

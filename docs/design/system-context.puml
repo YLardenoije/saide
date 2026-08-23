@@ -1,0 +1,21 @@
+@startuml
+title System Context
+
+actor Player
+
+rectangle "Godot Client" as Client
+rectangle "C++20 Game Server" as Server
+database "Database" as DB
+rectangle "Python Tools / Test Clients" as Tools
+
+Player --> Client : input
+Client --> Server : player intentions
+Server --> Client : authoritative state updates
+Server --> DB : persistence
+Tools --> Server : tests / load / validation
+
+note right of Server
+Authoritative game state
+and simulation
+end note
+@enduml

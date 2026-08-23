@@ -1,0 +1,102 @@
+= Networking
+:toc:
+
+== Scope
+
+This document defines the initial networking direction.
+
+The protocol will evolve incrementally as the project grows.
+
+== Principles
+
+* The server is authoritative.
+* The client sends intentions, not authoritative results.
+* All network input is untrusted.
+* Protocol behavior must be integration tested.
+* Protocol compatibility changes must be documented.
+
+== Initial transport
+
+The first implementation uses WebSocket (RFC 6455) framing over TCP, with
+JSON-encoded text frames. Each message is a JSON object with a `type` field
+whose value is one of the message names below.
+
+See link:adr/0002-websocket-transport.adoc[ADR 0002] for why WebSocket was
+chosen over a raw TCP socket.
+
+Initial development port:
+
+[source,text]
+----
+43594
+----
+
+This choice is intentionally simple and may be revisited later through an ADR if measurements or gameplay requirements justify a change.
+
+== Initial protocol progression
+
+The first messages should be introduced incrementally:
+
+[source,text]
+----
+HELLO
+HELLO_ACK
+PING
+PONG
+PLAYER_SPAWN
+PLAYER_DESPAWN
+MOVE_REQUEST
+PLAYER_MOVED
+----
+
+Do not add messages before they are required by a milestone.
+
+== Protocol versioning
+
+The protocol must expose an explicit version from the first real handshake.
+
+Example:
+
+[source,text]
+----
+PROTOCOL_VERSION = 1
+----
+
+Unsupported versions should be rejected cleanly.
+
+== Validation
+
+The server must validate:
+
+* message type
+* payload size
+* numeric ranges
+* referenced entity identifiers
+* state preconditions
+
+Malformed messages must not crash the server.
+
+== Testing
+
+Networking integration tests should use lightweight non-graphical clients where practical.
+
+Example flow:
+
+[source,text]
+----
+start server
+-> connect test client
+-> send HELLO
+-> receive HELLO_ACK
+-> send PING
+-> receive PONG
+-> disconnect
+----
+
+Later tests should cover multiple concurrent clients and gameplay flows.
+
+The first such test, `tools/test_movement_milestone.py`, starts the built
+server, connects two lightweight Python WebSocket clients, and asserts that
+one client's `MOVE_REQUEST` results in the other client observing a
+`PLAYER_MOVED` broadcast for it. It does not use `PING`/`PONG` yet, since
+that message pair isn't required by this milestone.

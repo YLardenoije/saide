@@ -1,0 +1,132 @@
+= Development and Engineering Hygiene
+:toc:
+
+== Core principle
+
+Hygiene is part of the feature.
+
+Every change should leave the repository at least as understandable, testable, reproducible, and maintainable as it was before.
+
+== Build hygiene
+
+* The repository must build from a clean checkout.
+* New warnings are not accepted.
+* Build configuration must be reproducible.
+* CI and local validation should use equivalent commands.
+* Generated files must be separated from source files.
+
+== C++ hygiene
+
+Server code uses C++20.
+
+Prefer:
+
+* RAII
+* explicit ownership
+* value semantics where appropriate
+* strong types
+* composition
+* small focused modules
+* deterministic behavior
+* standard library facilities
+
+Avoid unless clearly justified:
+
+* raw owning pointers
+* global mutable state
+* macro-heavy designs
+* deep inheritance trees
+* unnecessary template metaprogramming
+* hidden side effects
+* premature optimization
+
+== Python hygiene
+
+Maintained Python tooling should use:
+
+* `ruff`
+* `pytest`
+* type annotations for non-trivial public APIs where practical
+
+Tools must return non-zero on validation failure.
+
+Avoid unnecessary dependencies.
+
+== Godot hygiene
+
+The Godot client is primarily presentation and input.
+
+Do not move authoritative gameplay rules into the client.
+
+Keep scripts and scenes small and purpose-specific.
+
+Headless project validation must remain green.
+
+== Test hygiene
+
+* New behavior requires tests at the lowest useful level.
+* Bugs should receive regression tests where practical.
+* Do not delete, skip, weaken, or broaden test tolerances merely to make CI green.
+* Tests must not depend on external internet services.
+* Prefer fake time, explicit ticks, or synchronization over wall-clock sleeps.
+* Integration tests should exercise real process boundaries where useful.
+* Tests should be deterministic.
+
+== Documentation hygiene
+
+* Technical documentation under `docs/` uses AsciiDoc.
+* Technical diagrams use PlantUML source.
+* Documentation changes belong in the same PR as the implementation they describe.
+* Stale diagrams are defects.
+* Significant decisions receive ADRs.
+
+== Dependency hygiene
+
+* Add dependencies only for a clear need.
+* Prefer mature and maintained libraries.
+* Control versions sufficiently for reproducible CI.
+* Verify licenses before merge.
+* Document significant dependencies and why they exist.
+
+== Security hygiene
+
+Treat all network input as untrusted.
+
+Validate:
+
+* message sizes
+* message types
+* identifiers
+* ranges
+* state transitions
+
+The server remains authoritative even if the client is modified or malicious.
+
+== Change hygiene
+
+* Keep PRs small and single-purpose.
+* Avoid unrelated refactors inside feature PRs.
+* Do not leave dead code.
+* Do not leave commented-out implementation code.
+* Deferred `TODO`/`FIXME` items should reference tracked work where appropriate.
+* Do not silently change public interfaces or protocol behavior.
+
+== AI-specific hygiene
+
+Agents must:
+
+. read `AGENTS.md`
+. read the relevant docs before editing
+. stay within issue scope
+. update docs alongside relevant behavior changes
+. run local validation before pushing
+. preserve quality gates
+. surface conflicts instead of guessing
+. propose an ADR when a new foundational architectural decision is needed
+
+Agents must not:
+
+* invent architecture when documentation already defines it
+* disable tests or linters to get green CI
+* expand scope without approval
+* add reuse rights or licenses without explicit instruction

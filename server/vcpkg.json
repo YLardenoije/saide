@@ -1,0 +1,8 @@
+{
+  "name": "runescape-server",
+  "version": "0.1.0",
+  "dependencies": [
+    "ixwebsocket",
+    "nlohmann-json"
+  ]
+}

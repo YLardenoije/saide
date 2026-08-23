@@ -1,0 +1,50 @@
+= ADR 0002: WebSocket Transport for the Client-Server Protocol
+
+== Status
+
+Accepted
+
+Supersedes the "Initial transport" choice in `NETWORKING.adoc` (previously raw TCP).
+
+== Context
+
+`NETWORKING.adoc` originally specified a raw TCP socket for the first
+implementation. While implementing the first movement milestone, the server
+was instead built on WebSocket framing (RFC 6455).
+
+Reasons to prefer WebSocket over raw TCP for this project:
+
+* Godot 4 has a native `WebSocketPeer` client, so the game client needs no
+  custom framing code.
+* WebSocket provides a standard handshake and message framing for free,
+  removing the need to hand-roll TCP message framing/length-prefixing.
+* Text (JSON) frames are easy to inspect in browser dev tools and simple
+  test clients while the protocol is still evolving.
+* It remains a thin layer over TCP; server-authoritative validation and the
+  documented message progression are unaffected.
+
+== Decision
+
+Use a WebSocket server (`ixwebsocket` on the C++ side) with JSON-encoded
+text frames as the initial transport, instead of raw TCP.
+
+The documented message progression, protocol versioning, and validation
+rules in `NETWORKING.adoc` still apply; only the transport and wire encoding
+change. Each JSON message carries a `type` field whose value is one of the
+documented message names (e.g. `HELLO`, `MOVE_REQUEST`).
+
+== Consequences
+
+Positive:
+
+* No custom TCP framing/parsing code to write or test on either end.
+* Godot client networking code stays small.
+* Easy to debug with generic WebSocket tooling during development.
+
+Costs:
+
+* Slightly higher per-message overhead than a hand-rolled binary TCP
+  protocol (acceptable at the current tick rate and player counts).
+* Adds a external dependency (`ixwebsocket`) to the server.
+* If a future measurement shows WebSocket overhead is a problem, this
+  decision should be revisited through a new ADR.
