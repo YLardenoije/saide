@@ -43,6 +43,23 @@ ruff check tools/
 godot --headless --path client --quit
 ----
 
+== Local multiplayer launcher
+
+For local two-player testing in VS Code, use the CMake Tools launch-target
+selector to choose `saide_launch_dual_clients`, then run the selected target.
+The launcher builds and starts the server, waits for it to listen on port
+`43594`, then starts the same Godot client project twice. When both clients
+exit, the launcher stops the server.
+
+The launcher uses `godot` from `PATH` by default. If Godot is not on `PATH`,
+configure the executable before selecting and launching the target:
+
+[source,shell]
+----
+cd server
+cmake --preset default -DSAIDE_GODOT_EXE="/path/to/godot"
+----
+
 == C++ hygiene
 
 Server code uses C++20.
