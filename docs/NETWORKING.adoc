@@ -47,6 +47,8 @@ PLAYER_SPAWN
 PLAYER_DESPAWN
 MOVE_REQUEST
 PLAYER_MOVED
+CHAT_SEND
+CHAT_BROADCAST
 ----
 
 Do not add messages before they are required by a milestone.
@@ -100,3 +102,7 @@ server, connects two lightweight Python WebSocket clients, and asserts that
 one client's `MOVE_REQUEST` results in the other client observing a
 `PLAYER_MOVED` broadcast for it. It does not use `PING`/`PONG` yet, since
 that message pair isn't required by this milestone.
+
+The chat milestone test, `tools/test_chat_milestone.py`, starts the built
+server, connects two clients, sends `CHAT_SEND` from one, and asserts the
+other receives `CHAT_BROADCAST` with matching sender and text.

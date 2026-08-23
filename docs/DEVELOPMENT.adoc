@@ -28,7 +28,7 @@ cd server
 cmake --preset default
 cmake --build build
 python -m pip install -r ../tools/requirements.txt
-python -m pytest ../tools/test_movement_milestone.py -v
+python -m pytest ../tools -v
 ----
 * Python tooling lint:
 +

@@ -15,6 +15,7 @@ namespace {
 constexpr int kPort = 43594;
 constexpr int kTicksPerSecond = 5;
 constexpr int kProtocolVersion = 1;
+constexpr std::size_t kMaxChatMessageLength = 120;
 
 json playerSpawnMessage(const saide::Player& player) {
     return json{{"type", "PLAYER_SPAWN"}, {"id", player.id}, {"x", player.x}, {"y", player.y}};
@@ -112,6 +113,27 @@ int main() {
                         id, command.at("x").get<double>(), command.at("y").get<double>());
                 } catch (const json::exception& e) {
                     std::cerr << "Bad MOVE_REQUEST from " << id << ": " << e.what() << std::endl;
+                }
+            } else if (type == "CHAT_SEND") {
+                if (!world.hasPlayer(id)) {
+                    return; // must complete HELLO handshake first
+                }
+
+                try {
+                    const std::string text = command.at("text").get<std::string>();
+                    if (text.empty() || text.size() > kMaxChatMessageLength) {
+                        return;
+                    }
+
+                    const std::string payload =
+                        json{{"type", "CHAT_BROADCAST"}, {"from", id}, {"text", text}}.dump();
+                    for (const auto& client : server.getClients()) {
+                        if (client->getReadyState() == ix::ReadyState::Open) {
+                            client->send(payload);
+                        }
+                    }
+                } catch (const json::exception& e) {
+                    std::cerr << "Bad CHAT_SEND from " << id << ": " << e.what() << std::endl;
                 }
             }
         });
